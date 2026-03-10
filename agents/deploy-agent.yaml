@@ -1,0 +1,59 @@
+apiVersion: kagent.dev/v1alpha2
+kind: Agent
+metadata:
+  name: deploy-agent
+  namespace: kagent
+spec:
+  description: Esegue il deploy in produzione tramite rollout restart o Job programmato.
+  type: Declarative
+  skills:
+    insecureSkipVerify: true
+    refs:
+      - host.minikube.internal:5000/agente-deploy-skill:latest
+  declarative:
+    stream: true
+    a2aConfig:
+      skills:
+      - id: deploy-skill
+        name: Deploy Skill
+        description: Effettua apply  manifest
+        inputModes:
+          - text
+        outputModes:
+          - text
+        tags:
+          - apply
+          - deploy
+    modelConfig: openai-gpt-4o
+    systemMessage: |
+      Sei un agente di deploy per applicazioni Flask.
+      Quando ricevi una richiesta, carica la skill agente-deploy-skill ed esegui i passi indicati.
+      NON fare domande. NON mostrare menu. Esegui e restituisci il risultato.
+      Usa il parametro file_path (NON path) per read_file.
+    tools:
+      - type: McpServer
+        mcpServer:
+          apiGroup: kagent.dev
+          kind: RemoteMCPServer
+          name: filesystem-local
+          namespace: kagent
+          toolNames:
+            - read_file
+      - type: McpServer
+        mcpServer:
+          apiGroup: kagent.dev
+          kind: RemoteMCPServer
+          name: kagent-tool-server
+          namespace: kagent
+          toolNames:
+            - k8s_apply_manifest
+            - k8s_rollout
+    deployment:
+      volumes:
+        - name: desktop-volume
+          hostPath:
+            path: /host-desktop
+            type: Directory
+      volumeMounts:
+        - name: desktop-volume
+          mountPath: /desktop

@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: openai-gpt-4o
+  namespace: kagent
+type: Opaque
+stringData:
+  OPENAI_API_KEY: "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"
+---
+apiVersion: kagent.dev/v1alpha2
+kind: ModelConfig
+metadata:
+  name: openai-gpt-4o
+  namespace: kagent
+spec:
+  apiKeySecret: openai-gpt-4o
+  apiKeySecretKey: OPENAI_API_KEY
+  model: gpt-4o
+  provider: OpenAI
+  openAI:
+    temperature: "0.3"
+    timeout: 300
+    

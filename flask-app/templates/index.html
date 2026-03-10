@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>YouTube Controller - Minimal</title>
+  <style>
+    body { font-family: Arial, Helvetica, sans-serif; padding:20px; display:flex; flex-direction:column; gap:12px; align-items:center; background:white; /* changed to blue */ color:#000; }
+    #player { width: 100%; max-width:900px; aspect-ratio:16/9; background:white; /* changed to blue */ }
+    .controls { display:flex; gap:8px; }
+    button { padding:10px 16px; border-radius:8px; border:1px solid #ccc; background:white; /* changed to blue */ cursor:pointer; }
+  </style>
+</head>
+<body>
+  <div id="player"></div>
+  <div class="controls">
+    <button id="start-btn" onclick="playVideo()">Avvia</button>
+    
+    
+    <button id="stop-btn" onclick="stopVideo()">Stop</button>
+  </div>
+
+  <script>
+    var tag = document.createElement('script');
+    tag.src = 'https://www.youtube.com/iframe_api';
+    document.head.appendChild(tag);
+
+    var player;
+
+    function onYouTubeIframeAPIReady() {
+      player = new YT.Player('player', {
+        videoId: '{{ video_id }}',
+        playerVars: { rel: 0, modestbranding: 1 },
+        events: { 'onStateChange': onPlayerStateChange }
+      });
+    }
+
+    function setWatchingState(watching) {
+      fetch('/watching/state', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ watching: watching })
+      }).catch(function() {});
+    }
+
+    function onPlayerStateChange(event) {
+      if (event.data === YT.PlayerState.PLAYING) {
+        setWatchingState(true);           // play → OCCUPIED
+      } else if (event.data === YT.PlayerState.ENDED) {
+        setWatchingState(false);          // fine video → FREE
+      }
+      // PAUSED non fa nulla → rimane OCCUPIED
+    }
+
+    function playVideo() {
+      try { if (player && player.playVideo) player.playVideo(); } catch (e) {}
+    }
+
+    function pauseVideo() {
+      try { if (player && player.pauseVideo) player.pauseVideo(); } catch (e) {}
+      // PAUSA manuale → manteniamo OCCUPIED
+      setWatchingState(true);
+    }
+
+    function stopVideo() {
+      try { if (player && player.stopVideo) player.stopVideo(); } catch (e) {}
+      setWatchingState(false);            // stop manuale → FREE
+    }
+
+    document.addEventListener('keydown', function(e) {
+      if (e.code === 'Space') {
+        e.preventDefault();
+        try {
+          if (player && player.getPlayerState) {
+            var state = player.getPlayerState();
+            if (state === 1) { player.pauseVideo(); }
+            else { player.playVideo(); }
+          }
+        } catch (ex) {}
+      }
+    });
+
+    // reset stato quando la pagina viene chiusa
+    window.addEventListener('beforeunload', function() {
+      setWatchingState(false);
+    });
+  </script>
+</body>
+</html>

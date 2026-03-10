@@ -1,0 +1,8 @@
+# Exclude local virtual environments and other dev artifacts
+.venv
+venv
+__pycache__
+*.pyc
+.git
+node_modules
+*.log

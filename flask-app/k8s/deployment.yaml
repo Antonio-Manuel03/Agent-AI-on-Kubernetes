@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: yt-flask
+  namespace: kagent
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: yt-flask
+  template:
+    metadata:
+      labels:
+        app: yt-flask
+    spec:
+      containers:
+        - name: yt-flask
+          image: yt-flask:2.1
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 5000
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 5000
+            initialDelaySeconds: 3
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 5000
+            initialDelaySeconds: 10
+            periodSeconds: 10

@@ -1,0 +1,87 @@
+apiVersion: kagent.dev/v1alpha2
+kind: Agent
+metadata:
+  name: stage-agent
+  namespace: kagent
+spec:
+  description: "Crea ambiente di staging, applica modifiche, builda e deploya preview."
+  type: Declarative
+  skills:
+    insecureSkipVerify: true
+    refs:
+      - host.minikube.internal:5000/agente-stage-skill:latest
+  declarative:
+    stream: true
+    a2aConfig:
+      skills:
+      - id: staging-skill
+        name: Staging Skill
+        description: Crea staging, modifica, preview di un sito Flask
+        inputModes:
+          - text
+        outputModes:
+          - text
+        tags:
+          - staging
+    modelConfig: openai-gpt-4o
+    systemMessage: |
+      Sei un agente di staging per applicazioni Flask.
+      Quando ricevi una richiesta, carica la skill agente-stage-skill ed esegui i passi indicati.
+      NON fare domande. NON mostrare menu. Esegui e restituisci il risultato.
+      REGOLA CRITICA per edit_file:
+      Parametri CORRETTI:
+      file_path: "/desktop/file.html"
+        old_string: "testo vecchio"
+        new_string: "testo nuovo"
+      Parametri SBAGLIATI (NON usare MAI):
+        path: ...
+        edits: [...]
+    tools:
+      - type: McpServer
+        mcpServer:
+          apiGroup: kagent.dev
+          kind: RemoteMCPServer
+          name: filesystem-local
+          namespace: kagent
+          toolNames:
+            - get_file_info
+            - read_file
+            - read_multiple_files
+            - write_file
+            - edit_file
+      - type: McpServer
+        mcpServer:
+          apiGroup: kagent.dev
+          kind: RemoteMCPServer
+          name: docker-local
+          namespace: kagent
+          toolNames:
+            - build_image
+            - list_images
+            - remove_image
+      - type: McpServer
+        mcpServer:
+          apiGroup: kagent.dev
+          kind: RemoteMCPServer
+          name: shell-local
+          namespace: kagent
+          toolNames:
+            - execute_command
+      - type: McpServer
+        mcpServer:
+          apiGroup: kagent.dev
+          kind: RemoteMCPServer
+          name: kagent-tool-server
+          namespace: kagent
+          toolNames:
+            - k8s_apply_manifest
+            - k8s_delete_resource
+    deployment:
+      volumes:
+        - name: desktop-volume
+          hostPath:
+            path: /host-desktop
+            type: Directory
+      volumeMounts:
+        - name: desktop-volume
+          mountPath: /desktop
