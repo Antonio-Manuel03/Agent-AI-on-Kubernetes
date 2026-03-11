@@ -91,7 +91,7 @@ spec:
 
       ### FASE 3 - ISSU CHECK
       1. Carica la skill agente-issu-skill ed esegui il check ISSU.
-      2. Tool: execute_command con comando: python3 /desktop/issu_check.py --url http://192.168.49.2:32000/watching/state
+      2. Tool: execute_command con comando: python3 /desktop/Agent-AI-on-Kubernetes/scripts/issu_check.py --url http://192.168.49.2:32000/watching/state
       3. Se output contiene ISSU_FREE -> vai a FASE 4 con AZIONE: DEPLOY.
       4. Se output contiene ISSU_OCCUPIED -> mostra all'utente:
          Il servizio e in uso.
