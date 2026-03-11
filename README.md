@@ -84,6 +84,10 @@ L'orchestrator calcola tutte le variabili necessarie (tag immagini, nomi deploym
 
 ## Installazione
 
+### 0. Scarica intera cartella
+
+Assicurati che la cartella Agent-AI-on-Kubernetes sia sul desktop
+
 ### 1. Avvio Minikube
 
 ```bash
@@ -94,7 +98,7 @@ minikube mount ~/Desktop:/host-desktop &
 
 ### 2. Configurazione ModelConfig
 
-Creare un file `infra/modelconfig.yaml` con la propria API Key:
+Modifica in file `infra/modelconfig.yaml` con la propria API Key:
 
 ```yaml
 apiVersion: v1
@@ -104,7 +108,7 @@ metadata:
   namespace: kagent
 type: Opaque
 stringData:
-  OPENAI_API_KEY: "sk-proj-..."
+  OPENAI_API_KEY: "INSERISCI_QUI"
 ---
 apiVersion: kagent.dev/v1alpha2
 kind: ModelConfig
@@ -172,4 +176,4 @@ L'orchestrator guiderà il processo mostrando menu interattivi per confermare o 
 
 ## Autore
 
-**Antonio Manuel** — Università degli Studi di Salerno, Ingegneria Informatica
+**Antonio Manuel Fedullo** — Università degli Studi di Salerno, Ingegneria Informatica
