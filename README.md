@@ -164,7 +164,7 @@ kubectl port-forward -n kagent svc/kagent-ui 8082:8080 &
 
 Aprire `http://localhost:8082` e selezionare `orchestrator-agent`.
 
-## Utilizzo
+## Esempio
 
 Nella chat dell'orchestrator scrivere:
 
